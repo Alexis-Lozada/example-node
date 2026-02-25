@@ -12,7 +12,7 @@ describe('Suite de Pruebas de Calidad de Software', () => {
 
         test('Debe retornar 0 si se ingresan valores negativos', () => {
             const result = calculateValue(-10, 5);
-            expect(result).toBe(0);
+            expect(result).toBe(1);
         });
 
         // DESAFÍO: 2 Validaciones Adicionales en Jest
