@@ -4,31 +4,34 @@ import { check, sleep } from 'k6';
 // Configuración de la prueba de carga
 export const options = {
     stages: [
-        { duration: '30s', target: 20 },
-        { duration: '1m', target: 20 },
-        { duration: '30s', target: 0 },
+        { duration: '30s', target: 20 }, // Rampa de subida: hasta 20 usuarios virtuales en 30s
+        { duration: '1m', target: 20 },  // Mantenimiento: 20 usuarios constantes por 1 minuto
+        { duration: '30s', target: 0 },  // Rampa de bajada: vuelve a 0 usuarios
     ],
-    // Usamos el objeto 'cloud' y le pasamos el Project ID obligatorio
+    // Configuración para enviar métricas a Grafana Cloud
     cloud: {
-        projectID: 6868138,
+        projectID: 6868138, // Tu ID de proyecto exacto (tomado de tus capturas)
         name: 'Prueba de Carga - Node.js API'
     }
 };
 
 export default function () {
-    const baseUrl = 'http://localhost:3000';
+    // Apuntamos al puerto 3001, que es el que usa tu archivo bin/www
+    const baseUrl = 'http://localhost:3001';
 
+    // Endpoint 1: Verificación de estado de salud
     let resHealth = http.get(`${baseUrl}/health`);
     check(resHealth, {
         'Health Check es status 200': (r) => r.status === 200,
     });
 
-    sleep(1);
+    sleep(1); // Simula el tiempo de espera del usuario
 
+    // Endpoint 2: Obtención de inventario
     let resItems = http.get(`${baseUrl}/items`);
     check(resItems, {
         'Items endpoint es status 200': (r) => r.status === 200,
-        'Items retorna un array de datos': (r) => r.body.length > 0,
+        'Items retorna datos': (r) => r.body.length > 0,
     });
 
     sleep(1);

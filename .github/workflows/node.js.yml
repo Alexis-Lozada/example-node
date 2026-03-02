@@ -31,7 +31,7 @@ jobs:
 
   # Job 2: Pruebas de Carga con K6
   load-test:
-    needs: test
+    needs: test # Solo se ejecuta si el Job "test" es exitoso
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -46,18 +46,18 @@ jobs:
       - name: Install dependencies
         run: npm install
         
-      # Levantamos el servidor en segundo plano
+      # Levantamos el servidor en segundo plano apuntando al script correcto
       - name: Start the Express application
-        run: npm start & 
+        run: node ./bin/www & 
         
       - name: Wait for server to be ready
         run: sleep 5
         
-      # NUEVO: Instalamos K6 de forma nativa (evita el aislamiento de Docker)
+      # Instalamos K6 de forma nativa
       - name: Setup K6
         uses: grafana/setup-k6-action@v1
 
-      # NUEVO: Ejecutamos K6 directamente en la consola
+      # Ejecutamos la prueba de K6 y enviamos resultados a Grafana Cloud
       - name: Run K6 load test and stream to Grafana Cloud
         run: k6 run k6-test.js --out cloud
         env:
