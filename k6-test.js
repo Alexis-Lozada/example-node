@@ -8,7 +8,9 @@ export const options = {
         { duration: '1m', target: 20 },
         { duration: '30s', target: 0 },
     ],
+    // Usamos el objeto 'cloud' y le pasamos el Project ID obligatorio
     cloud: {
+        projectID: 6868138,
         name: 'Prueba de Carga - Node.js API'
     }
 };
