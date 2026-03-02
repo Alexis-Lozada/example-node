@@ -1,37 +1,62 @@
-name: Node.js CI
-
-
+name: Node.js CI & Load Testing
 
 on:
- push:
-   branches: [ "main" ]
- pull_request:
-   branches: [ "main" ]
-
-
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
 jobs:
- test:
-   runs-on: ubuntu-latest
-   strategy:
-         matrix:
-           node-version: [22.20.0,18.x]
-   steps:
-     - name: Checkout repository
-       uses: actions/checkout@v4
-     - name: Use Node.js ${{ matrix.node-version }}
-       uses: actions/setup-node@v4
-       with:
-         node-version: ${{ matrix.node-version }}
-         cache: 'npm'
+  # Job 1: Pruebas Unitarias y de Integración con Jest
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [22.20.0, 18.x]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
 
+      - name: Install dependencies
+        run: npm install
 
+      - name: Run Jest tests
+        run: npm test
 
-     - name: Install dependencies
-       run: npm install
-
-
-
-     - name: Run Jest tests
-       run: npm test
-
+  # Job 2: Pruebas de Carga con K6
+  load-test:
+    needs: test # Solo se ejecuta si el Job "test" es exitoso
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Use Node.js 22.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.20.0
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm install
+        
+      # Ejecutar la app en segundo plano para que el runner no se quede bloqueado
+      - name: Start the Express application
+        run: npm start & 
+        
+      - name: Wait for server to be ready
+        run: sleep 5
+        
+      - name: Run K6 load test and stream to Grafana Cloud
+        uses: grafana/k6-action@v0.3.1
+        with:
+          filename: k6-test.js
+          flags: --out cloud
+        env:
+          K6_CLOUD_TOKEN: ${{ secrets.K6_CLOUD_TOKEN }}
