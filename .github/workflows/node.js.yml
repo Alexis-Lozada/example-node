@@ -1,4 +1,4 @@
-name: Node.js CI & Load Testing
+name: Node.js CI, Load Testing & SAST
 
 on:
   push:
@@ -62,3 +62,24 @@ jobs:
         run: k6 run k6-test.js --out cloud
         env:
           K6_CLOUD_TOKEN: ${{ secrets.K6_CLOUD_TOKEN }}
+
+  # Job 3: Análisis de Calidad de Código con SonarQube (Nuevo)
+  sonarQube-analysis:
+    name: Análisis SAST
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clonación del repositorio (Checkout)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Requerido por SonarQube para un análisis histórico completo
+          
+      - name: Ejecución de Escáner SonarQube
+        uses: SonarSource/sonarqube-scan-action@v6
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        with:
+          args: >
+            -Dsonar.projectKey=node-proyect
+            -Dsonar.qualitygate.wait=true
+
