@@ -15,7 +15,7 @@ export const options = {
     }
 };
 
-export default function () {
+export default function loadTest() {
     // Apuntamos al puerto 3001, que es el que usa tu archivo bin/www
     const baseUrl = 'http://localhost:3001';
 
