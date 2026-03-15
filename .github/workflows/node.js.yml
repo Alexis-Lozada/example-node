@@ -152,3 +152,4 @@ jobs:
             # 4. Descargar nueva versión y ejecutar
             sudo docker pull ghcr.io/$REPO_LC:latest
             sudo docker run -d -p 3000:3000 --name app-node-prod ghcr.io/$REPO_LC:latest
+            
