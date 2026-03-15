@@ -12,7 +12,7 @@ RUN npm install
 COPY . .
 
 # Exponer puerto de la API
-EXPOSE 3001
+EXPOSE 3000
 
 # Arrancar la aplicación
 CMD ["node", "./bin/www"]
