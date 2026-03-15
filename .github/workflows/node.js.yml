@@ -82,4 +82,3 @@ jobs:
           args: >
             -Dsonar.projectKey=node-proyect
             -Dsonar.qualitygate.wait=true
-
