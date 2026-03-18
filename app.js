@@ -7,6 +7,15 @@ const indexRouter = require('./routes/index')
 const usersRouter = require('./routes/users')
 const itemsRouter = require('./routes/items')
 
+// =========================================================
+// CONFIGURACIÓN DE PROMETHEUS (MÉTRICAS)
+// =========================================================
+const client = require('prom-client')
+// Activar la recolección de métricas por defecto del sistema (RAM, CPU, Event Loop)
+const collectDefaultMetrics = client.collectDefaultMetrics
+collectDefaultMetrics({ register: client.register })
+// =========================================================
+
 const app = express()
 
 app.use(logger('dev'))
@@ -24,6 +33,19 @@ app.get('/health', (req, res) => {
 
 app.get('/items', (req, res) => {
     res.status(200).json([{ id: 1, stock: 15 }])
+})
+// =========================================================
+
+// =========================================================
+// RUTA OCULTA PARA QUE PROMETHEUS RECOLECTE LOS DATOS
+// =========================================================
+app.get('/metrics', async (req, res) => {
+    try {
+        res.set('Content-Type', client.register.contentType)
+        res.end(await client.register.metrics())
+    } catch (ex) {
+        res.status(500).end(ex)
+    }
 })
 // =========================================================
 
